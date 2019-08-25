@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cheopardy!</title>
+</head>
+<style>
+  body {
+    background-color: black;
+  }
+
+  .board {
+    display: flex;
+    background-color: black;
+    justify-content: space-around;
+  }
+
+  .column {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-basis: 0;
+    justify-content: center;
+  }
+
+  .slot {
+    display: flex;
+    background-color: #001ab0;
+    justify-content: center;
+    align-items: center;
+    height: 130px;
+  }
+
+  .topic {
+
+    text-align: center;
+    text-shadow: 2px 2px black;
+    overflow-wrap: break-word;
+    font-size: 40px;
+    color: white;
+    margin: 10px 5px 5px 5px;
+  }
+
+  .amount {
+    display: flex;
+    text-shadow: 4px 4px black;
+    font-size: 100px;
+    color: #f2b16d;
+    margin: 5px 5px 5px 5px;
+  }
+
+  .amount.active {
+    background-color: #2f00c8;
+  }
+
+  .question {
+    display: hidden;
+    position: fixed;
+    text-shadow: 2px 5px black;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    font-size: 100px;
+  }
+
+  .question.active {
+    display: block;
+    vertical-align: middle;
+    background-color: #061276;
+    color: white;
+    top: 0;
+    left: 0;
+  }
+
+  .container {
+    margin: 150px 300px;
+    overflow-wrap: break-word;
+  }
+
+  .answer {
+    display: none;
+    font-size: 40px;
+    background-color: blue;
+    margin: 5px 40%;
+    box-shadow: 5px 5px black;
+    overflow-wrap: break-word;
+  }
+
+  .sound-container {
+    margin: 20px 30px 0 0;
+  }
+
+  .fas.fa-volume-up {
+    display: none;
+    font-size:36px;
+    color:white;
+  }
+
+  .fa-volume-mute {
+    font-size:36px;
+    color:white;
+  }
+
+  .close-container {
+    margin: 10px 40px 0 0;
+  }
+
+  .fa.fa-window-close {
+    display: none;
+    font-size:36px;
+    color:white
+  }
+</style>
+<body>
+  <div class="board">
+  </div>
+  <div class="sound-container" align="right" >
+    <i class='fas fa-volume-up'></i>
+    <i class='fas fa-volume-mute'></i>
+  </div>
+  <div class="question">
+    <div class="close-container" align="right">
+      <i class="fa fa-window-close"></i>
+    </div>
+    <div class="container">
+    </div>
+    <div class="answer">
+      Click here for answer
+    </div>
+  </div>
+</body>
+<script src='https://kit.fontawesome.com/a076d05399.js'></script>
+<script src="topics.js"></script>
+<script>
+  let amounts;
+  let questionSlot;
+  let question;
+  let answer;
+  let selectedQuestionSlot;
+  const board = document.querySelector(`.board`);
+  const closeButton = document.querySelector(`.fa-window-close`);
+  const answerButton = document.querySelector(`.answer`);
+  var audioButton = document.querySelector(`.fa-volume-up`);
+  var muteButton = document.querySelector(`.fa-volume-mute`);
+
+  var audio = new Audio("cheopardy.mp3");
+  //load the questions
+  function initBoard() {
+    topicsArr.forEach(topic => {
+      let column = document.createElement("div");
+      column.classList.add("column");
+      column.innerHTML += `<div class="slot topic">${topic.topic}</div>`
+      topic.questions.forEach(question => {
+        column.innerHTML += `<div class="slot amount" data-question="${question.question}" data-answer="${question.answer}">${question.amount}</div>`
+      })
+      board.appendChild(column);
+    })
+    amounts = document.querySelectorAll(`.amount`);
+    questionSlot = document.querySelector(`.question`);
+    //mouse interaction with questions
+    amounts.forEach(amount => amount.addEventListener('mouseover', function () {
+      this.classList.add('active');
+    }));
+
+    amounts.forEach(amount => amount.addEventListener('mouseout', function () {
+      this.classList.remove('active');
+    }));
+
+    amounts.forEach(amount => amount.addEventListener('click', function () {
+      questionSlot.classList.add('active');
+      selectedQuestionSlot = this;
+      question = this.dataset.question;
+      answer = this.dataset.answer;
+      questionSlot.querySelector(`.container`).textContent = question;
+      answerButton.style.display = "block";
+      closeButton.style.display = "block";
+    }));
+  }
+
+  window.addEventListener('load', initBoard);
+  //audio
+  audioButton.addEventListener('click', () => {
+    audioButton.style.display = "none";
+    muteButton.style.display = "block";
+    audio.pause();
+  });
+
+  muteButton.addEventListener('click', () => {
+    muteButton.style.display = "none";
+    audioButton.style.display = "block";
+    audio.currentTime = 0;
+    audio.play();
+  });
+
+  audio.addEventListener('ended', function() {
+      this.currentTime = 0;
+      this.play();
+  }, false);
+
+  //close button
+  closeButton.addEventListener('mouseenter', function(){
+    closeButton.style.color='silver';
+  })
+
+  closeButton.addEventListener('mouseout', function(){
+    closeButton.style.color='white';
+  })
+
+  closeButton.addEventListener('click', function(){
+    questionSlot.classList.remove('active');
+    answerButton.textContent = 'Click here for answer';
+    answerButton.style.display = "none";
+    closeButton.style.display = "none";
+  })
+
+  //see answer
+  answerButton.addEventListener('mouseenter', function(){
+    answerButton.style.color='silver';
+  })
+
+  answerButton.addEventListener('mouseout', function(){
+    answerButton.style.color='white';
+  })
+
+  answerButton.addEventListener('click', function(){
+    answerButton.textContent = answer;
+    selectedQuestionSlot.style.backgroundColor = 'red'
+  });
+</script>
+</html>
