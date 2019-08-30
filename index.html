@@ -48,6 +48,7 @@
     }
 
     initBoard() {
+      let fragment = document.createDocumentFragment();
       topicsArr.forEach(topic => {
         let column = document.createElement("div");
         column.classList.add("column");
@@ -55,8 +56,9 @@
         topic.questions.forEach(question => {
           column.innerHTML += `<div class="slot amount" data-click="askQuestion" data-mouseover="activateItem" data-mouseout="deactivateItem" data-question="${question.question}" data-answer="${question.answer}">${question.amount}</div>`
         })
-        board.appendChild(column);
+        fragment.appendChild(column);
       })
+      board.appendChild(fragment);
     }
 
     showAnswer (e) {
